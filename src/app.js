@@ -1,36 +1,42 @@
-var React = require('react');
+var React = require('react'),
+    PAGES = require('./enums/pages'),
+    ACTIONS = require('./enums/actions'),
+    dispatcher = require('./core/dispatcher');
 
 var Application = React.createClass({
     getInitialState: function() {
         return {
-            page: 'splash'
+            page: PAGES.SECOND
         };
     },
-    onActivate: function(event, pageName){
-        this.setState({ page: pageName });
-        this.render();
-    },
-    isPageActive: function(pageName){
-        return this.state.page === pageName;
-    },
     render: function(){
-        var currentPage
+        return this.state.page;
+    },
+    events: [],
+    componentDidMount: function(){
+        var event = dispatcher.register(function(payload){
+            if (payload.action !== ACTIONS.PAGE_CHANGED){ return; }
 
-        return (
-            <div>
-                <Page name="menu" isActive={this.isPageActive} onActivate={this.onActivate}></Page>
-                <Page name="splash" isActive={this.isPageActive} onActivate={this.onActivate}></Page>
-                <Page name="ready" isActive={this.isPageActive} onActivate={this.onActivate}></Page>
-            </div>
-        );
+            this.setState({ page: payload.page });
+        }.bind(this));
+
+        this.events.push(event);
+    },
+    componentWillUnmount: function(){
+        this.events.forEach(dispatcher.unregister);
     }
 });
 
 var Page = require('./components/page');
 
 React.render(
-    <Application>
-
-    </Application>,
+    <Application></Application>,
     document.body
 );
+
+setTimeout(function(){
+    dispatcher.dispatch({
+        action: ACTIONS.PAGE_CHANGED,
+        page: PAGES.MAIN
+    });
+}, 2500);

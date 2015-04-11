@@ -3,7 +3,7 @@ var React = require('react');
 var Page = React.createClass({
     getInitialState: function() {
         return {
-            visible: this.props.isActive(this.props.name)
+            visible: true
         };
     },
     onClick: function(event){
